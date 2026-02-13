@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Inventario PYME</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-back {
+            background: #f5f7fa;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .btn-back:hover {
+            background: #e0e0e0;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f5f7fa;
+        }
+
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* Products Table */
+        .products-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .products-table thead th {
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .products-table tbody tr {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .products-table tbody tr:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .products-table tbody td {
+            padding: 15px;
+        }
+
+        .products-table tbody tr td:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .products-table tbody tr td:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .product-sku {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stock-ok {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .stock-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .stock-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .products-table {
+                font-size: 14px;
+            }
+            
+            .products-table thead {
+                display: none;
+            }
+            
+            .products-table tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                padding: 15px;
+            }
+            
+            .products-table tbody td {
+                display: block;
+                text-align: left;
+                padding: 8px 0;
+            }
+            
+            .products-table tbody td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                display: inline-block;
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>📦 Gestión de Productos</h1>
+        <div class="header-actions">
+            <a href="dashboard.html" class="btn-back">← Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Add Product Form -->
+        <div class="card">
+            <h2>➕ Agregar Nuevo Producto</h2>
+            
+            <div id="formAlert" style="display: none;"></div>
+            
+            <form id="productForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del Producto *</label>
+                        <input 
+                            type="text" 
+                            id="nombre" 
+                            placeholder="Ej: Coca Cola 1.5L"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sku">SKU (Código) *</label>
+                        <input 
+                            type="text" 
+                            id="sku" 
+                            placeholder="Ej: BEB-001"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stock_actual">Stock Actual *</label>
+                        <input 
+                            type="number" 
+                            id="stock_actual" 
+                            min="0"
+                            placeholder="Ej: 50"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stock_minimo">Stock Mínimo *</label>
+                        <input 
+                            type="number" 
+                            id="stock_minimo" 
+                            min="0"
+                            placeholder="Ej: 10"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="precio">Precio (Opcional)</label>
+                        <input 
+                            type="number" 
+                            id="precio" 
+                            min="0"
+                            step="0.01"
+                            placeholder="Ej: 1500"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoria">Categoría (Opcional)</label>
+                        <input 
+                            type="text" 
+                            id="categoria" 
+                            placeholder="Ej: Bebidas"
+                        >
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Agregar Producto
+                </button>
+            </form>
+        </div>
+
+        <!-- Products List -->
+        <div class="card">
+            <h2>📋 Lista de Productos</h2>
+            
+            <div id="productsContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Cargando productos...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://api-inventarioo-production.up.railway.app';
+
+        // Verificar autenticación
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Cargar productos
+        async function loadProducts() {
+            const token = localStorage.getItem('token');
+            const container = document.getElementById('productsContainer');
+            
+            try {
+                const response = await fetch(`${API_URL}/products`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    throw new Error('Error al cargar productos');
+                }
+                
+                const data = await response.json();
+                const products = data.productos || [];
+                
+                if (products.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <p>No tienes productos registrados</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Usa el formulario de arriba para agregar tu primer producto</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Stock Actual</th>
+                                <th>Stock Mínimo</th>
+                                <th>Estado</th>
+                                <th>Precio</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${products.map(product => {
+                                const stockPercent = (product.stock_actual / product.stock_minimo) * 100;
+                                let badge = 'stock-ok';
+                                let badgeText = '✅ OK';
+                                
+                                if (product.stock_actual <= product.stock_minimo) {
+                                    badge = 'stock-warning';
+                                    badgeText = '⚠️ Bajo';
+                                }
+                                
+                                if (product.stock_actual < product.stock_minimo * 0.5) {
+                                    badge = 'stock-danger';
+                                    badgeText = '🚨 Crítico';
+                                }
+                                
+                                const precio = product.precio ? `$${product.precio.toLocaleString('es-CL')}` : '-';
+                                
+                                return `
+                                    <tr>
+                                        <td data-label="Producto">
+                                            <div class="product-name">${product.nombre}</div>
+                                            <div class="product-sku">SKU: ${product.sku}</div>
+                                        </td>
+                                        <td data-label="Stock Actual">
+                                            <strong>${product.stock_actual}</strong> unidades
+                                        </td>
+                                        <td data-label="Stock Mínimo">
+                                            ${product.stock_minimo} unidades
+                                        </td>
+                                        <td data-label="Estado">
+                                            <span class="stock-badge ${badge}">${badgeText}</span>
+                                        </td>
+                                        <td data-label="Precio">
+                                            ${precio}
+                                        </td>
+                                        <td data-label="Acciones">
+                                            <button class="btn-delete" onclick="deleteProduct(${product.id}, '${product.nombre}')">
+                                                🗑️ Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Error al cargar productos: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Agregar producto
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const token = localStorage.getItem('token');
+            const btn = document.getElementById('submitBtn');
+            const alert = document.getElementById('formAlert');
+            
+            const productData = {
+                nombre: document.getElementById('nombre').value,
+                sku: document.getElementById('sku').value,
+                stock_actual: parseInt(document.getElementById('stock_actual').value),
+                stock_minimo: parseInt(document.getElementById('stock_minimo').value)
+            };
+            
+            const precio = document.getElementById('precio').value;
+            const categoria = document.getElementById('categoria').value;
+            
+            if (precio) productData.precio = parseFloat(precio);
+            if (categoria) productData.categoria = categoria;
+            
+            btn.disabled = true;
+            btn.textContent = 'Agregando...';
+            alert.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_URL}/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert.className = 'alert alert-success';
+                    alert.textContent = '✅ Producto agregado exitosamente';
+                    alert.style.display = 'block';
+                    
+                    // Limpiar formulario
+                    document.getElementById('productForm').reset();
+                    
+                    // Recargar lista
+                    await loadProducts();
+                    
+                    // Scroll al inicio
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error(data.detail || 'Error al agregar producto');
+                }
+            } catch (error) {
+                alert.className = 'alert alert-error';
+                alert.textContent = '❌ ' + error.message;
+                alert.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Agregar Producto';
+            }
+        });
+
+        // Eliminar producto
+        async function deleteProduct(id, nombre) {
+            if (!confirm(`¿Estás seguro de eliminar "${nombre}"?`)) {
+                return;
+            }
+            
+            const token = localStorage.getItem('token');
+            
+            try {
+                const response = await fetch(`${API_URL}/products/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    await loadProducts();
+                } else {
+                    const data = await response.json();
+                    alert('Error al eliminar: ' + (data.detail || 'Error desconocido'));
+                }
+            } catch (error) {
+                alert('Error al eliminar: ' + error.message);
+            }
+        }
+
+        // Inicializar
+        if (checkAuth()) {
+            loadProducts();
+        }
+    </script>
+</body>
+</html>
