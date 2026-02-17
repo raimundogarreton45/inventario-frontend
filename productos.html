@@ -438,28 +438,63 @@
         }
 
         // Cargar productos
-        async function loadProducts() {
-            const token = localStorage.getItem('token');
-            const container = document.getElementById('productsContainer');
+        async function cargarProductos() {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    try {
+        const resp = await fetch(`${API_URL}/products`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (resp.status === 401) {
+            // Token inválido, redirigir al login
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        if (!resp.ok) {
+            throw new Error('Error al cargar productos');
+        }
+        
+        const productos = await resp.json();
+        mostrarProductos(productos);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar productos');
+    }
+}
+
+        //async function loadProducts() {
+           // const token = localStorage.getItem('token');
+            //const container = document.getElementById('productsContainer');
             
-            try {
-                const response = await fetch(`${API_URL}/products`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+           // try {
+             //   const response = await fetch(`${API_URL}/products`, {
+             //       headers: {
+             //           'Authorization': `Bearer ${token}`
+            //        }
+           //     });
                 
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        localStorage.removeItem('token');
-                        window.location.href = 'index.html';
-                        return;
-                    }
-                    throw new Error('Error al cargar productos');
-                }
+             //   if (!response.ok) {
+                //    if (response.status === 401) {
+                 //       localStorage.removeItem('token');
+                 //       window.location.href = 'index.html';
+                    //    return;
+                //    }
+              //      throw new Error('Error al cargar productos');
+             //   }
                 
-                const data = await response.json();
-                const products = data.productos || [];
+               // const data = await response.json();
+              //  const products = data.productos || [];
                 
                 if (products.length === 0) {
                     container.innerHTML = `
