@@ -641,6 +641,25 @@
         // INICIALIZAR
         // ═══════════════════════════════════════════════════════
         loadProducts();
+        // DEBUG: Ver token
+function verToken() {
+    const token = localStorage.getItem('token');
+    if (token) {
+        alert('✅ Token encontrado:\n\n' + token.substring(0, 50) + '...\n\n(Copiado completo abajo)');
+        // Crear textarea temporal para copiar
+        const textarea = document.createElement('textarea');
+        textarea.value = token;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Token copiado al portapapeles');
+    } else {
+        alert('❌ NO hay token. Debes hacer login de nuevo.');
+        window.location.href = 'index.html';
+    }
+}
+
     </script>
 </body>
 </html>
