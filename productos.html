@@ -428,73 +428,38 @@
         const API_URL = 'https://api-inventarioo-production.up.railway.app';
 
         // Verificar autenticación
-        function checkAuth() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'index.html';
-                return false;
-            }
-            return true;
-        }
-
-        // Cargar productos
-        async function cargarProductos() {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    try {
-        const resp = await fetch(`${API_URL}/products`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (resp.status === 401) {
-            // Token inválido, redirigir al login
-            localStorage.removeItem('token');
+        const token = localStorage.getItem('token');
+        if (!token) {
             window.location.href = 'index.html';
-            return;
         }
-        
-        if (!resp.ok) {
-            throw new Error('Error al cargar productos');
-        }
-        
-        const productos = await resp.json();
-        mostrarProductos(productos);
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error al cargar productos');
-    }
-}
 
-        //async function loadProducts() {
-           // const token = localStorage.getItem('token');
-            //const container = document.getElementById('productsContainer');
+        // ═══════════════════════════════════════════════════════
+        // CARGAR PRODUCTOS
+        // ═══════════════════════════════════════════════════════
+        async function loadProducts() {
+            const container = document.getElementById('productsContainer');
             
-           // try {
-             //   const response = await fetch(`${API_URL}/products`, {
-             //       headers: {
-             //           'Authorization': `Bearer ${token}`
-            //        }
-           //     });
+            try {
+                const response = await fetch(`${API_URL}/products`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 
-             //   if (!response.ok) {
-                //    if (response.status === 401) {
-                 //       localStorage.removeItem('token');
-                 //       window.location.href = 'index.html';
-                    //    return;
-                //    }
-              //      throw new Error('Error al cargar productos');
-             //   }
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                    return;
+                }
                 
-               // const data = await response.json();
-              //  const products = data.productos || [];
+                if (!response.ok) {
+                    throw new Error('Error al cargar productos');
+                }
+                
+                const data = await response.json();
+                
+                // El backend devuelve un array directo
+                const products = Array.isArray(data) ? data : (data.products || []);
                 
                 if (products.length === 0) {
                     container.innerHTML = `
@@ -521,7 +486,6 @@
                         </thead>
                         <tbody>
                             ${products.map(product => {
-                                const stockPercent = (product.stock_actual / product.stock_minimo) * 100;
                                 let badge = 'stock-ok';
                                 let badgeText = '✅ OK';
                                 
@@ -568,20 +532,22 @@
                 `;
                 
             } catch (error) {
+                console.error('Error:', error);
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">⚠️</div>
-                        <p>Error al cargar productos: ${error.message}</p>
+                        <p>Error al cargar productos</p>
                     </div>
                 `;
             }
         }
 
-        // Agregar producto
+        // ═══════════════════════════════════════════════════════
+        // AGREGAR PRODUCTO
+        // ═══════════════════════════════════════════════════════
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const token = localStorage.getItem('token');
             const btn = document.getElementById('submitBtn');
             const alert = document.getElementById('formAlert');
             
@@ -644,13 +610,13 @@
             }
         });
 
-        // Eliminar producto
+        // ═══════════════════════════════════════════════════════
+        // ELIMINAR PRODUCTO
+        // ═══════════════════════════════════════════════════════
         async function deleteProduct(id, nombre) {
             if (!confirm(`¿Estás seguro de eliminar "${nombre}"?`)) {
                 return;
             }
-            
-            const token = localStorage.getItem('token');
             
             try {
                 const response = await fetch(`${API_URL}/products/${id}`, {
@@ -671,10 +637,11 @@
             }
         }
 
-        // Inicializar
-        if (checkAuth()) {
-            loadProducts();
-        }
+        // ═══════════════════════════════════════════════════════
+        // INICIALIZAR
+        // ═══════════════════════════════════════════════════════
+        loadProducts();
     </script>
 </body>
 </html>
+
